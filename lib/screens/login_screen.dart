@@ -38,6 +38,9 @@ class _LoginScreenState extends State<LoginScreen> {
       await context.read<Session>().signIn(_identifier.text, _password.text);
     } on ApiException catch (e) {
       if (mounted) setState(() => _error = e.message);
+    } catch (e) {
+      debugPrint('Sign-in failed: $e');
+      if (mounted) setState(() => _error = 'Sign-in failed. Please try again.');
     } finally {
       if (mounted) setState(() => _busy = false);
     }

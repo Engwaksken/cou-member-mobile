@@ -37,10 +37,10 @@ class RemoteViewState extends State<RemoteView> {
         _data = data;
         _loading = false;
       });
-    } on ApiException catch (e) {
+    } catch (e) {
       if (!mounted) return;
       setState(() {
-        _error = e.message;
+        _error = e is ApiException ? e.message : 'Could not load this page.';
         _loading = false;
       });
     }

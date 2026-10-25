@@ -44,7 +44,14 @@ class Session extends ChangeNotifier {
 
   /// Restores a saved sign-in, checking with the server that it is still valid.
   Future<void> restore() async {
-    final saved = await store.read();
+    String? saved;
+    try {
+      saved = await store.read();
+    } catch (e) {
+      // The keystore can be unreadable on a real device (for example after a backup restore).
+      debugPrint('Could not read the saved sign-in: $e');
+      await _clearStore();
+    }
     if (saved == null || saved.isEmpty) {
       _set(SessionStatus.signedOut);
       return;
@@ -61,6 +68,10 @@ class Session extends ChangeNotifier {
         // Offline or server trouble: keep the member signed in and let screens retry.
         _set(SessionStatus.signedIn);
       }
+    } catch (e) {
+      // Never leave the app on the loading screen.
+      debugPrint('Could not restore the sign-in: $e');
+      _set(SessionStatus.signedIn);
     }
   }
 
@@ -72,7 +83,12 @@ class Session extends ChangeNotifier {
     });
     final token = data['token'] as String;
     api.token = token;
-    await store.write(token);
+    try {
+      await store.write(token);
+    } catch (e) {
+      // Stay signed in for this launch even if the device cannot save the token.
+      debugPrint('Could not save the sign-in: $e');
+    }
     member = Map<String, dynamic>.from(data['member'] as Map);
     notice = null;
     _set(SessionStatus.signedIn);
@@ -95,8 +111,16 @@ class Session extends ChangeNotifier {
   Future<void> _forget() async {
     api.token = null;
     member = const {};
-    await store.clear();
+    await _clearStore();
     _set(SessionStatus.signedOut);
+  }
+
+  Future<void> _clearStore() async {
+    try {
+      await store.clear();
+    } catch (e) {
+      debugPrint('Could not clear the saved sign-in: $e');
+    }
   }
 
   void _set(SessionStatus value) {

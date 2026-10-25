@@ -61,7 +61,11 @@ class ApiClient {
       throw ApiException('The church server took too long to respond. Please try again.');
     } on SocketException {
       throw ApiException('No internet connection. Check your connection and try again.');
+    } on HandshakeException {
+      throw ApiException("Could not make a secure connection to the church server. Check the phone's date and time.");
     } on http.ClientException {
+      throw ApiException('Could not reach the church server. Please try again.');
+    } on IOException {
       throw ApiException('Could not reach the church server. Please try again.');
     }
 
@@ -75,7 +79,10 @@ class ApiClient {
 
     if (response.statusCode == 200 && data != null && data['success'] == true) return data;
 
-    final message = (data?['message'] as String?) ?? 'Something went wrong (error ${response.statusCode}).';
+    final message = (data?['message'] as String?) ??
+        (response.statusCode == 404
+            ? 'The church server does not have the member app service yet (error 404).'
+            : 'Something went wrong (error ${response.statusCode}).');
     if (response.statusCode == 401 && token != null) onUnauthorized?.call();
     throw ApiException(message, statusCode: response.statusCode);
   }

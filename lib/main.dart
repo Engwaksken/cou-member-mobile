@@ -8,6 +8,8 @@ import 'screens/home_shell.dart';
 import 'screens/login_screen.dart';
 
 void main() {
+  // Secure storage uses a platform channel, which needs the binding before runApp.
+  WidgetsFlutterBinding.ensureInitialized();
   final api = ApiClient(baseUrl: AppConfig.apiBaseUrl);
   final session = Session(api: api, store: SecureTokenStore())..restore();
   runApp(MemberApp(session: session));
