@@ -4,17 +4,23 @@ import 'package:provider/provider.dart';
 import '../core/format.dart';
 import '../core/session.dart';
 import '../widgets/remote_view.dart';
+import 'home_shell.dart';
 
 /// Church news: announcements, upcoming programs, and Health/Education department tips.
 class ChurchScreen extends StatelessWidget {
-  const ChurchScreen({super.key});
+  const ChurchScreen({super.key, this.initialTab = 0});
+
+  /// Tab to show first.
+  final int initialTab;
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 4,
+      initialIndex: initialTab.clamp(0, 4 - 1),
       child: Scaffold(
         appBar: AppBar(
+          leading: const MenuButton(),
           title: const Text('Church'),
           bottom: const TabBar(
             isScrollable: true,

@@ -4,17 +4,23 @@ import 'package:provider/provider.dart';
 import '../core/format.dart';
 import '../core/session.dart';
 import '../widgets/remote_view.dart';
+import 'home_shell.dart';
 
 /// Order of Service and Church of Uganda hymns.
 class WorshipScreen extends StatelessWidget {
-  const WorshipScreen({super.key});
+  const WorshipScreen({super.key, this.initialTab = 0});
+
+  /// Tab to show first.
+  final int initialTab;
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 2,
+      initialIndex: initialTab.clamp(0, 2 - 1),
       child: Scaffold(
         appBar: AppBar(
+          leading: const MenuButton(),
           title: const Text('Worship'),
           bottom: const TabBar(tabs: [Tab(text: 'Order of Service'), Tab(text: 'Hymns')]),
         ),

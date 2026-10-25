@@ -4,28 +4,42 @@ import 'package:provider/provider.dart';
 import '../core/format.dart';
 import '../core/session.dart';
 import '../widgets/remote_view.dart';
+import 'home_shell.dart';
 
-/// The member's own giving records: pledges, offertory, tithe, thanksgiving and contributions.
+/// The member's own giving records: pledges, offertory, tithe, thanksgiving, contributions and Good Samaritan.
 class GivingScreen extends StatelessWidget {
-  const GivingScreen({super.key});
+  const GivingScreen({super.key, this.initialTab = 0});
 
-  static const _types = [('offertory', 'Offertory'), ('tithe', 'Tithe'), ('thanksgiving', 'Thanksgiving'), ('contributions', 'Contributions')];
+  /// Tab to show first, an index into [tabs].
+  final int initialTab;
+
+  /// Tabs in order; `type` is the API giving type ('pledges' has its own endpoint).
+  static const tabs = [
+    (type: 'pledges', label: 'Pledges', icon: Icons.handshake_outlined),
+    (type: 'offertory', label: 'Offertory', icon: Icons.church_outlined),
+    (type: 'tithe', label: 'Tithe', icon: Icons.percent),
+    (type: 'thanksgiving', label: 'Thanksgiving', icon: Icons.celebration_outlined),
+    (type: 'contributions', label: 'Contributions', icon: Icons.savings_outlined),
+    (type: 'good_samaritan', label: 'Good Samaritan', icon: Icons.volunteer_activism_outlined),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: _types.length + 1,
+      length: tabs.length,
+      initialIndex: initialTab.clamp(0, tabs.length - 1),
       child: Scaffold(
         appBar: AppBar(
+          leading: const MenuButton(),
           title: const Text('My Giving'),
           bottom: TabBar(
             isScrollable: true,
             tabAlignment: TabAlignment.start,
-            tabs: [const Tab(text: 'Pledges'), for (final t in _types) Tab(text: t.$2)],
+            tabs: [for (final t in tabs) Tab(text: t.label)],
           ),
         ),
         body: TabBarView(
-          children: [const _PledgesTab(), for (final t in _types) _GivingTab(type: t.$1, label: t.$2)],
+          children: [for (final t in tabs) t.type == 'pledges' ? const _PledgesTab() : _GivingTab(type: t.type, label: t.label)],
         ),
       ),
     );

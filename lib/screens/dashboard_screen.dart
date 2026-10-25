@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../core/format.dart';
 import '../core/session.dart';
 import '../widgets/remote_view.dart';
+import 'home_shell.dart';
 
 /// Home: welcome, daily Bible verse, pledge summary, latest announcements and upcoming programs.
 class DashboardScreen extends StatelessWidget {
@@ -16,7 +17,7 @@ class DashboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final api = context.read<Session>().api;
     return Scaffold(
-      appBar: AppBar(title: const Text('Home')),
+      appBar: AppBar(leading: const MenuButton(), title: const Text('Home')),
       body: RemoteView(
         load: () => api.get('dashboard'),
         builder: (context, data) {

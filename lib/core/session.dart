@@ -94,6 +94,12 @@ class Session extends ChangeNotifier {
     _set(SessionStatus.signedIn);
   }
 
+  /// Replaces the signed-in member's details after the member edits their profile.
+  void updateMember(Map<String, dynamic> value) {
+    member = value;
+    notifyListeners();
+  }
+
   Future<void> signOut() async {
     try {
       await api.post('logout', const {});

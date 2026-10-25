@@ -40,6 +40,16 @@ class ApiClient {
     return _send(() => _http.post(_uri(action), headers: _headers(json: true), body: jsonEncode(body)));
   }
 
+  /// Uploads one file as multipart form data under [field].
+  Future<Map<String, dynamic>> upload(String action, String field, List<int> bytes, String filename) {
+    return _send(() async {
+      final request = http.MultipartRequest('POST', _uri(action))
+        ..headers.addAll(_headers())
+        ..files.add(http.MultipartFile.fromBytes(field, bytes, filename: filename));
+      return http.Response.fromStream(await _http.send(request));
+    }, timeout: const Duration(seconds: 60));
+  }
+
   Uri _uri(String action, [Map<String, String> params = const {}]) {
     final base = Uri.parse(baseUrl);
     return base.replace(queryParameters: {...base.queryParameters, 'action': action, ...params});
@@ -53,10 +63,10 @@ class ApiClient {
         'X-Auth-Token': ?token,
       };
 
-  Future<Map<String, dynamic>> _send(Future<http.Response> Function() request) async {
+  Future<Map<String, dynamic>> _send(Future<http.Response> Function() request, {Duration timeout = _timeout}) async {
     final http.Response response;
     try {
-      response = await request().timeout(_timeout);
+      response = await request().timeout(timeout);
     } on TimeoutException {
       throw ApiException('The church server took too long to respond. Please try again.');
     } on SocketException {

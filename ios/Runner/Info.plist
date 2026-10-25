@@ -66,5 +66,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Take a profile photo for your church member profile.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Choose a profile photo for your church member profile.</string>
 </dict>
 </plist>
