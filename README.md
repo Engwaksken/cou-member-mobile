@@ -5,7 +5,7 @@ and the same password they use on the church member website.
 
 ## What members can do
 - **Home:** welcome, daily Bible verse, pledge summary, latest announcements, upcoming programs
-- **Giving:** their own pledges (with payment history), offertory, tithe, thanksgiving and contributions
+- **Giving:** their own pledges (with payment history), tithe, thanksgiving and contributions. Offertory and Good Samaritan are collected in the basket.
 - **Worship:** Order of Service (with links to hymns) and Church of Uganda hymns
 - **Church:** announcements, upcoming programs, Health and Education department tips
 - **Profile:** their details, change password (also changes the website password), sign out

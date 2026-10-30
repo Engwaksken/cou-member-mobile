@@ -203,7 +203,7 @@ void main() {
     expect((session.store as MemoryTokenStore).token, isNull);
   });
 
-  testWidgets('the side menu opens Giving on the Good Samaritan tab', (tester) async {
+  testWidgets('basket collections are not listed as Giving tabs', (tester) async {
     final session = makeSession(savedToken: validToken);
     await session.restore();
     await tester.pumpWidget(MemberApp(session: session));
@@ -211,13 +211,13 @@ void main() {
     await tester.tap(find.byTooltip('Menu'));
     await tester.pumpAndSettle();
     expect(find.text('Rongoro COU · RCOU-2026-0001'), findsOneWidget);
-    await tester.scrollUntilVisible(find.text('Good Samaritan'), 100, scrollable: find.descendant(of: find.byType(Drawer), matching: find.byType(Scrollable)));
-    await tester.tap(find.text('Good Samaritan'));
+    await tester.scrollUntilVisible(find.text('Contributions'), 100, scrollable: find.descendant(of: find.byType(Drawer), matching: find.byType(Scrollable)));
+    await tester.tap(find.text('Contributions'));
     await tester.pumpAndSettle();
+    expect(find.text('Offertory'), findsNothing);
+    expect(find.text('Good Samaritan'), findsNothing);
     expect(find.text('My Giving'), findsOneWidget);
-    expect(find.text('Total Good Samaritan'), findsOneWidget);
-    expect(find.text('UGX 15,000'), findsWidgets);
-    expect(find.text('Help for the Okello family'), findsOneWidget);
+    expect(find.text('Contributions'), findsOneWidget);
   });
 
   testWidgets('edits phone and church zone from the profile', (tester) async {

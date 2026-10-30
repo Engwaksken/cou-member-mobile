@@ -6,7 +6,7 @@ import '../core/session.dart';
 import '../widgets/remote_view.dart';
 import 'home_shell.dart';
 
-/// The member's own giving records: pledges, offertory, tithe, thanksgiving, contributions and Good Samaritan.
+/// The member's own giving records: pledges, tithe, thanksgiving and contributions.
 class GivingScreen extends StatelessWidget {
   const GivingScreen({super.key, this.initialTab = 0});
 
@@ -16,11 +16,9 @@ class GivingScreen extends StatelessWidget {
   /// Tabs in order; `type` is the API giving type ('pledges' has its own endpoint).
   static const tabs = [
     (type: 'pledges', label: 'Pledges', icon: Icons.handshake_outlined),
-    (type: 'offertory', label: 'Offertory', icon: Icons.church_outlined),
     (type: 'tithe', label: 'Tithe', icon: Icons.percent),
     (type: 'thanksgiving', label: 'Thanksgiving', icon: Icons.celebration_outlined),
     (type: 'contributions', label: 'Contributions', icon: Icons.savings_outlined),
-    (type: 'good_samaritan', label: 'Good Samaritan', icon: Icons.volunteer_activism_outlined),
   ];
 
   @override
