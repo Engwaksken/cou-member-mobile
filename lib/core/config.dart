@@ -8,5 +8,5 @@ class AppConfig {
     defaultValue: 'https://cou.kemmytech.com/api/member/',
   );
 
-  static const String churchName = 'Rongoro COU';
+  static const String appName = 'COU Member';
 }

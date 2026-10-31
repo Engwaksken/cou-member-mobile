@@ -37,7 +37,7 @@ class MemberApp extends StatelessWidget {
     return ChangeNotifierProvider.value(
       value: session,
       child: MaterialApp(
-        title: AppConfig.churchName,
+        title: AppConfig.appName,
         debugShowCheckedModeBanner: false,
         navigatorKey: _navigator,
         scaffoldMessengerKey: _messenger,

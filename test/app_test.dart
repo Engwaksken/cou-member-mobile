@@ -256,7 +256,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Menu'));
     await tester.pumpAndSettle();
-    expect(find.text('Rongoro COU · RCOU-2026-0001'), findsOneWidget);
+    expect(find.text('Member No. RCOU-2026-0001'), findsOneWidget);
     await tester.scrollUntilVisible(find.text('Contributions'), 100, scrollable: find.descendant(of: find.byType(Drawer), matching: find.byType(Scrollable)));
     await tester.tap(find.text('Contributions'));
     await tester.pumpAndSettle();

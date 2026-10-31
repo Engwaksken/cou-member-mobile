@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../core/config.dart';
 import '../core/format.dart';
 import '../core/session.dart';
 import '../core/theme.dart';
@@ -156,7 +155,7 @@ class _Menu extends StatelessWidget {
                 const SizedBox(height: 14),
                 Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 18)),
                 const SizedBox(height: 2),
-                Text('${AppConfig.churchName} · ${asText(m['member_no'])}', style: TextStyle(color: Colors.white.withValues(alpha: .85), fontSize: 13.5)),
+                Text('Member No. ${asText(m['member_no'])}', style: TextStyle(color: Colors.white.withValues(alpha: .85), fontSize: 13.5)),
               ],
             ),
           ),

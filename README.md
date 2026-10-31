@@ -1,4 +1,4 @@
-# Rongoro COU Member App
+# COU Member App
 
 Flutter app for church members. Members sign in with their **membership number or pledge number**
 and the same password they use on the church member website.

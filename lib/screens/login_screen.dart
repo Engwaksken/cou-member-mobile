@@ -53,8 +53,8 @@ class _LoginScreenState extends State<LoginScreen> {
     final scheme = Theme.of(context).colorScheme;
     final notice = context.watch<Session>().notice;
     return AuthLayout(
-      title: AppConfig.churchName,
-      subtitle: 'Member App',
+      title: AppConfig.appName,
+      subtitle: 'Church of Uganda',
       child: Form(
         key: _formKey,
         child: Column(

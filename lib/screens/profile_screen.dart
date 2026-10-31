@@ -3,7 +3,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../core/api_client.dart';
-import '../core/config.dart';
 import '../core/format.dart';
 import '../core/session.dart';
 import '../core/theme.dart';
@@ -168,7 +167,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        '${AppConfig.churchName} member',
+                        'Church of Uganda member',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: Colors.white.withValues(alpha: .85)),
                       ),
