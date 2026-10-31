@@ -29,7 +29,10 @@ const member = {'id': 1, 'member_no': 'RCOU-2026-0001', 'pledge_no': 'P-001', 'f
 /// Bodies sent to update_profile, for assertions.
 final updatedProfiles = <Map<String, dynamic>>[];
 
-/// Fake API: accepts RCOU-2026-0001 or P-001 with password Member@123.
+/// Mary's password on the fake server; reset_password changes it.
+var memberPassword = 'Member@123';
+
+/// Fake API: accepts RCOU-2026-0001 or P-001 with [memberPassword]; reset code 123456.
 http.Response fakeApi(http.Request request, {bool expireToken = false}) {
   final action = request.url.queryParameters['action'];
   http.Response json(int status, Map<String, dynamic> body) =>
@@ -38,8 +41,17 @@ http.Response fakeApi(http.Request request, {bool expireToken = false}) {
   if (action == 'login') {
     final body = jsonDecode(request.body) as Map<String, dynamic>;
     final okId = ['RCOU-2026-0001', 'P-001'].contains(body['identifier']);
-    if (okId && body['password'] == 'Member@123') return json(200, {'success': true, 'token': validToken, 'member': member});
+    if (okId && body['password'] == memberPassword) return json(200, {'success': true, 'token': validToken, 'member': member});
     return json(401, {'success': false, 'message': 'The membership/pledge number or password is incorrect.'});
+  }
+  if (action == 'forgot_password') {
+    return json(200, {'success': true, 'message': 'A 6-digit code has been sent.'});
+  }
+  if (action == 'reset_password') {
+    final body = jsonDecode(request.body) as Map<String, dynamic>;
+    if (body['code'] != '123456') return json(422, {'success': false, 'message': 'The code is incorrect or has expired. Check the code or request a new one.'});
+    memberPassword = body['new_password'] as String;
+    return json(200, {'success': true, 'message': 'Your password was reset.'});
   }
   final auth = request.headers['Authorization'];
   if (expireToken || auth != 'Bearer $validToken') {
@@ -249,5 +261,43 @@ void main() {
     expect(updatedProfiles.single['phone'], '0772 123456');
     expect(updatedProfiles.single['church_zone_id'], 3);
     expect(find.text('My Profile'), findsOneWidget);
+  });
+
+  testWidgets('resets a forgotten password with a code and signs in', (tester) async {
+    memberPassword = 'Member@123';
+    addTearDown(() => memberPassword = 'Member@123');
+    final session = makeSession();
+    await session.restore();
+    await tester.pumpWidget(MemberApp(session: session));
+    await tester.enterText(find.byKey(const Key('identifier')), 'P-001');
+    await tester.tap(find.byKey(const Key('forgotPassword')));
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(TextFormField, 'P-001'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('sendCode')));
+    await tester.pumpAndSettle();
+    expect(find.text('A 6-digit code has been sent.'), findsOneWidget);
+
+    await tester.enterText(find.byKey(const Key('resetCode')), '000000');
+    await tester.enterText(find.byKey(const Key('resetNewPassword')), 'weak');
+    await tester.enterText(find.byKey(const Key('resetConfirmPassword')), 'weak');
+    await tester.tap(find.byKey(const Key('resetPassword')));
+    await tester.pump();
+    expect(find.text('Use at least 8 characters.'), findsOneWidget);
+
+    await tester.enterText(find.byKey(const Key('resetNewPassword')), 'NewPass@2026');
+    await tester.enterText(find.byKey(const Key('resetConfirmPassword')), 'NewPass@2026');
+    await tester.tap(find.byKey(const Key('resetPassword')));
+    await tester.pumpAndSettle();
+    expect(find.text('The code is incorrect or has expired. Check the code or request a new one.'), findsOneWidget);
+    expect(session.status, SessionStatus.signedOut);
+
+    await tester.enterText(find.byKey(const Key('resetCode')), '123456');
+    await tester.tap(find.byKey(const Key('resetPassword')));
+    await tester.pumpAndSettle();
+    expect(memberPassword, 'NewPass@2026');
+    expect(session.status, SessionStatus.signedIn);
+    expect(find.text('Welcome back, Mary'), findsOneWidget);
+    expect(find.text('Reset password'), findsNothing);
   });
 }

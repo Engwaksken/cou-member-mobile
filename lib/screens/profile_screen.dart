@@ -183,6 +183,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 }
 
+/// Mirrors the server password rules so members see problems before submitting.
+String? validateNewPassword(String? value) {
+  final v = value ?? '';
+  if (v.length < 8) return 'Use at least 8 characters.';
+  if (!RegExp('[A-Z]').hasMatch(v)) return 'Include an uppercase letter.';
+  if (!RegExp('[a-z]').hasMatch(v)) return 'Include a lowercase letter.';
+  if (!RegExp(r'\d').hasMatch(v)) return 'Include a number.';
+  return null;
+}
+
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
 
@@ -204,16 +214,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     _new.dispose();
     _confirm.dispose();
     super.dispose();
-  }
-
-  /// Mirrors the server rules so members see problems before submitting.
-  String? _validateNew(String? value) {
-    final v = value ?? '';
-    if (v.length < 8) return 'Use at least 8 characters.';
-    if (!RegExp('[A-Z]').hasMatch(v)) return 'Include an uppercase letter.';
-    if (!RegExp('[a-z]').hasMatch(v)) return 'Include a lowercase letter.';
-    if (!RegExp(r'\d').hasMatch(v)) return 'Include a number.';
-    return null;
   }
 
   Future<void> _submit() async {
@@ -265,7 +265,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               controller: _new,
               obscureText: true,
               decoration: const InputDecoration(labelText: 'New password', helperText: 'At least 8 characters, with upper and lower case letters and a number.'),
-              validator: _validateNew,
+              validator: validateNewPassword,
             ),
             const SizedBox(height: 16),
             TextFormField(

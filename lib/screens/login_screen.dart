@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../core/api_client.dart';
 import '../core/config.dart';
 import '../core/session.dart';
+import 'forgot_password_screen.dart';
 
 /// Sign in with a membership number or pledge number and the member's portal password.
 class LoginScreen extends StatefulWidget {
@@ -68,8 +69,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 4),
                     Text('Member App', textAlign: TextAlign.center, style: TextStyle(color: scheme.onSurfaceVariant)),
                     const SizedBox(height: 32),
-                    if (notice != null && _error == null) _Alert(text: notice, color: scheme.secondaryContainer),
-                    if (_error != null) _Alert(text: _error!, color: scheme.errorContainer),
+                    if (notice != null && _error == null) FormAlert(text: notice, color: scheme.secondaryContainer),
+                    if (_error != null) FormAlert(text: _error!, color: scheme.errorContainer),
                     TextFormField(
                       key: const Key('identifier'),
                       controller: _identifier,
@@ -110,10 +111,19 @@ class _LoginScreenState extends State<LoginScreen> {
                           ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                           : const Text('Sign in'),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 8),
+                    TextButton(
+                      key: const Key('forgotPassword'),
+                      onPressed: _busy
+                          ? null
+                          : () => Navigator.of(context).push(
+                                MaterialPageRoute<void>(builder: (_) => ForgotPasswordScreen(identifier: _identifier.text)),
+                              ),
+                      child: const Text('Forgot password?'),
+                    ),
+                    const SizedBox(height: 12),
                     Text(
-                      'Use the same password as the church member website. '
-                      'Forgot it? Ask the church office to reset it.',
+                      'Use the same password as the church member website.',
                       textAlign: TextAlign.center,
                       style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13),
                     ),
@@ -128,8 +138,9 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-class _Alert extends StatelessWidget {
-  const _Alert({required this.text, required this.color});
+/// Coloured message box above a form.
+class FormAlert extends StatelessWidget {
+  const FormAlert({super.key, required this.text, required this.color});
 
   final String text;
   final Color color;

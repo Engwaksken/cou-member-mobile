@@ -10,7 +10,10 @@ and the same password they use on the church member website.
 - **Church:** announcements, upcoming programs, Health and Education department tips
 - **Profile:** their details, change password (also changes the website password), sign out
 
-The app is read-only apart from signing in/out and changing the password.
+- **Forgot password:** from the sign-in screen, the member enters their number, receives a 6-digit code by SMS and
+  email (the phone and email on their member record), and sets a new password. They are then signed in.
+
+The app is read-only apart from signing in/out, editing the profile and changing or resetting the password.
 
 ## Server
 The app talks to the member API in the church website repository (`api/member/`). Before the app is used:
@@ -19,6 +22,10 @@ The app talks to the member API in the church website repository (`api/member/`)
    Order of Service and tips).
 
 Sign-in is locked for 15 minutes after 5 failed attempts for the same number (or 20 from one IP address).
+Reset codes expire after 15 minutes and allow 5 tries; a number can request 3 codes an hour (10 per IP address).
+Sending codes uses the website's SMTP settings and the active `sms_settings` row. A reset signs the member out of the app
+on every device. Members with no phone or email on file still need the church office to reset their password.
+
 Sign-in tokens last 90 days; deactivating a member or their login ends app access immediately.
 
 ## Development
