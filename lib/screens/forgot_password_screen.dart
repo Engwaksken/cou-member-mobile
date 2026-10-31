@@ -100,6 +100,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            Image.asset('assets/icons/logo.png', height: 96, cacheHeight: 288, semanticLabel: 'Church of Uganda logo'),
+            const SizedBox(height: 20),
             if (_error != null) FormAlert(text: _error!, color: scheme.errorContainer),
             if (_info != null && _error == null) FormAlert(text: _info!, color: scheme.secondaryContainer),
             if (!_codeSent)

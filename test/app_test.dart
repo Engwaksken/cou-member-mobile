@@ -281,18 +281,24 @@ void main() {
     await tester.enterText(find.byKey(const Key('resetCode')), '000000');
     await tester.enterText(find.byKey(const Key('resetNewPassword')), 'weak');
     await tester.enterText(find.byKey(const Key('resetConfirmPassword')), 'weak');
+    await tester.ensureVisible(find.byKey(const Key('resetPassword')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('resetPassword')));
     await tester.pump();
     expect(find.text('Use at least 8 characters.'), findsOneWidget);
 
     await tester.enterText(find.byKey(const Key('resetNewPassword')), 'NewPass@2026');
     await tester.enterText(find.byKey(const Key('resetConfirmPassword')), 'NewPass@2026');
+    await tester.ensureVisible(find.byKey(const Key('resetPassword')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('resetPassword')));
     await tester.pumpAndSettle();
     expect(find.text('The code is incorrect or has expired. Check the code or request a new one.'), findsOneWidget);
     expect(session.status, SessionStatus.signedOut);
 
     await tester.enterText(find.byKey(const Key('resetCode')), '123456');
+    await tester.ensureVisible(find.byKey(const Key('resetPassword')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('resetPassword')));
     await tester.pumpAndSettle();
     expect(memberPassword, 'NewPass@2026');
