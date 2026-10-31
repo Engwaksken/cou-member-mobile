@@ -141,21 +141,15 @@ class _Menu extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(3),
-                      decoration: const BoxDecoration(color: AppColors.gold, shape: BoxShape.circle),
-                      child: CircleAvatar(
-                        radius: 30,
-                        backgroundColor: Colors.white,
-                        foregroundImage: photo.isEmpty ? null : NetworkImage(photo),
-                        child: Text(name.substring(0, 1).toUpperCase(), style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w700, color: AppColors.purple)),
-                      ),
-                    ),
-                    const Spacer(),
-                    Image.asset('assets/icons/logo.png', width: 44, height: 44, cacheWidth: 132, opacity: const AlwaysStoppedAnimation(.9)),
-                  ],
+                Container(
+                  padding: const EdgeInsets.all(3),
+                  decoration: const BoxDecoration(color: AppColors.gold, shape: BoxShape.circle),
+                  child: CircleAvatar(
+                    radius: 30,
+                    backgroundColor: Colors.white,
+                    foregroundImage: photo.isEmpty ? null : NetworkImage(photo),
+                    child: Text(name.substring(0, 1).toUpperCase(), style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w700, color: AppColors.purple)),
+                  ),
                 ),
                 const SizedBox(height: 14),
                 Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 18)),
