@@ -15,8 +15,8 @@ and the same password they use on the church member website.
 
 - **Notifications:** a bell on Home and a notifications page list what the church has sent. Under **Notification settings**
   (Profile or the side menu) members choose, for each kind of message, push, email and/or SMS: announcements, events,
-  upcoming programs, health and education tips, pledges, payments received, and reminders (weekly pledge balance,
-  and programs and events the day before). New members get push and email on and SMS off, except reminders, which
+  upcoming programs, health and education tips, pledges, payments received, and reminders (pledge balance on Saturday
+  from 8 am, a short push on Sunday from 7 am before service, and programs and events the day before). New members get push and email on and SMS off, except reminders, which
   keep SMS on as the website already texted them.
 
 The app is read-only apart from signing in/out, editing the profile and changing or resetting the password.
@@ -35,7 +35,8 @@ on every device. Members with no phone or email on file still need the church of
 ### Notifications
 1. Run `database/member_notifications.sql` on the database.
 2. Schedule `cron/member_notifications.php` every 10 minutes (`*/10 * * * * /usr/bin/php /path/to/cron/member_notifications.php`).
-   The first run only records what already exists, so members are not sent old items. Each run sends up to 200
+   The first run only records what already exists, so members are not sent old items. This job also sends the
+   weekend pledge reminders, so remove the old `cron/weekly_pledge_reminders.php` job from the crontab. Each run sends up to 200
    queued notifications. Emails use the website's SMTP settings; SMS uses the active `sms_settings` row.
 3. Push notifications (Firebase Cloud Messaging):
    - Create a Firebase project, add an Android app with package `org.rongorocou.cou_member_app`, download
