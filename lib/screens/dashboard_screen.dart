@@ -91,7 +91,11 @@ class _Welcome extends StatelessWidget {
               ],
             ),
           ),
-          const Icon(Icons.church, color: Colors.white24, size: 52),
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+            child: Image.asset('assets/icons/logo.png', width: 48, height: 48, cacheWidth: 144),
+          ),
         ],
       ),
     );

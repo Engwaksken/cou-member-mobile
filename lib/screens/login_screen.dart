@@ -63,7 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Icon(Icons.church, size: 72, color: scheme.primary),
+                    Image.asset('assets/icons/logo.png', height: 120, cacheHeight: 360, semanticLabel: 'Church of Uganda logo'),
                     const SizedBox(height: 12),
                     Text(AppConfig.churchName, textAlign: TextAlign.center, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 4),
