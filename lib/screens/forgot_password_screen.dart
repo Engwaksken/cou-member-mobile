@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../core/api_client.dart';
 import '../core/format.dart';
 import '../core/session.dart';
+import '../widgets/ui.dart';
 import 'login_screen.dart' show FormAlert;
 import 'profile_screen.dart' show validateNewPassword;
 
@@ -93,17 +94,18 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Scaffold(
-      appBar: AppBar(title: const Text('Reset password')),
-      body: Form(
+    return AuthLayout(
+      title: 'Reset password',
+      subtitle: _codeSent ? 'Step 2 of 2 · Enter the code and a new password' : 'Step 1 of 2 · Get a code',
+      compact: true,
+      showBack: true,
+      child: Form(
         key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Image.asset('assets/icons/logo.png', height: 96, cacheHeight: 288, semanticLabel: 'Church of Uganda logo'),
-            const SizedBox(height: 20),
-            if (_error != null) FormAlert(text: _error!, color: scheme.errorContainer),
-            if (_info != null && _error == null) FormAlert(text: _info!, color: scheme.secondaryContainer),
+            if (_error != null) FormAlert(text: _error!, color: scheme.errorContainer, icon: Icons.error_outline),
+            if (_info != null && _error == null) FormAlert(text: _info!, color: scheme.secondaryContainer, icon: Icons.mark_email_read_outlined),
             if (!_codeSent)
               Padding(
                 padding: const EdgeInsets.only(bottom: 16),
@@ -127,21 +129,22 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 prefixIcon: Icon(Icons.badge_outlined),
               ),
             ),
-            const SizedBox(height: 24),
-            if (!_codeSent)
+            const SizedBox(height: 16),
+            if (!_codeSent) ...[
+              const SizedBox(height: 8),
               FilledButton(
                 key: const Key('sendCode'),
                 onPressed: _busy ? null : _sendCode,
-                style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
                 child: Text(_busy ? 'Sending…' : 'Send code'),
-              )
-            else ...[
+              ),
+            ] else ...[
               TextFormField(
                 key: const Key('resetCode'),
                 controller: _code,
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(6)],
                 autofillHints: const [AutofillHints.oneTimeCode],
+                style: const TextStyle(fontSize: 18, letterSpacing: 4, fontWeight: FontWeight.w600),
                 decoration: const InputDecoration(labelText: '6-digit code', prefixIcon: Icon(Icons.pin_outlined)),
                 validator: (v) => (v ?? '').trim().length != 6 ? 'Enter the 6-digit code you received.' : null,
               ),
@@ -156,7 +159,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   prefixIcon: const Icon(Icons.lock_outline),
                   suffixIcon: IconButton(
                     tooltip: _showPassword ? 'Hide password' : 'Show password',
-                    icon: Icon(_showPassword ? Icons.visibility_off : Icons.visibility),
+                    icon: Icon(_showPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined),
                     onPressed: () => setState(() => _showPassword = !_showPassword),
                   ),
                 ),
@@ -176,14 +179,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               FilledButton(
                 key: const Key('resetPassword'),
                 onPressed: _busy ? null : _reset,
-                style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
                 child: Text(_busy ? 'Saving…' : 'Reset password'),
               ),
-              const SizedBox(height: 8),
-              TextButton(
+              const SizedBox(height: 12),
+              OutlinedButton(
                 onPressed: _busy ? null : _sendCode,
                 child: const Text('Send a new code'),
               ),
+              const SizedBox(height: 4),
               TextButton(
                 onPressed: _busy
                     ? null
@@ -196,12 +199,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 child: const Text('Use a different number'),
               ),
             ],
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Text(
               'Your new password also applies to the church member website, and signs you out on other devices. '
               'No phone or email on file? Ask the church office to reset your password.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12),
+              style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13),
             ),
           ],
         ),

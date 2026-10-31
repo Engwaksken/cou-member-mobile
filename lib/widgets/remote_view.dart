@@ -82,23 +82,30 @@ class MessageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
+    final scheme = Theme.of(context).colorScheme;
     // Scrollable so pull-to-refresh still works on an empty page.
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(32),
       children: [
-        const SizedBox(height: 60),
-        Icon(icon, size: 56, color: muted),
-        const SizedBox(height: 16),
-        Text(message, textAlign: TextAlign.center, style: TextStyle(color: muted, fontSize: 15)),
-        if (action != null) ...[const SizedBox(height: 20), Center(child: action)],
+        const SizedBox(height: 48),
+        Center(
+          child: Container(
+            width: 96,
+            height: 96,
+            decoration: BoxDecoration(color: scheme.primaryContainer.withValues(alpha: .55), shape: BoxShape.circle),
+            child: Icon(icon, size: 44, color: scheme.primary),
+          ),
+        ),
+        const SizedBox(height: 20),
+        Text(message, textAlign: TextAlign.center, style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 16, height: 1.4)),
+        if (action != null) ...[const SizedBox(height: 24), Center(child: action)],
       ],
     );
   }
 }
 
-/// Small uppercase heading above a group of cards.
+/// Heading above a group of cards, with an optional action on the right.
 class SectionTitle extends StatelessWidget {
   const SectionTitle(this.text, {super.key, this.trailing});
 
@@ -108,19 +115,10 @@ class SectionTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 20, 4, 8),
+      padding: EdgeInsets.fromLTRB(4, 22, 0, trailing == null ? 8 : 2),
       child: Row(
         children: [
-          Expanded(
-            child: Text(
-              text.toUpperCase(),
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: .8,
-                  ),
-            ),
-          ),
+          Expanded(child: Text(text, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 17, fontWeight: FontWeight.w700))),
           ?trailing,
         ],
       ),

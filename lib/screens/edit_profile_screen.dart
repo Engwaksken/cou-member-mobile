@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../core/api_client.dart';
 import '../core/format.dart';
 import '../core/session.dart';
+import 'login_screen.dart' show FormAlert;
 
 /// Edit contact details and church zone, with the same rules as the member website.
 class EditProfileScreen extends StatefulWidget {
@@ -88,13 +89,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            if (_error != null)
-              Container(
-                margin: const EdgeInsets.only(bottom: 16),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(color: Theme.of(context).colorScheme.errorContainer, borderRadius: BorderRadius.circular(10)),
-                child: Text(_error!),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(4, 0, 4, 20),
+              child: Text(
+                'Keep your contact details up to date so the church can reach you.',
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
+            ),
+            if (_error != null) FormAlert(text: _error!, color: Theme.of(context).colorScheme.errorContainer, icon: Icons.error_outline),
             TextFormField(
               key: const Key('phone'),
               controller: _phone,
@@ -137,11 +139,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               maxLength: 120,
               decoration: const InputDecoration(labelText: 'Service attended (optional)', prefixIcon: Icon(Icons.church_outlined)),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             FilledButton(
               key: const Key('saveProfile'),
               onPressed: _busy ? null : _submit,
-              style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
               child: Text(_busy ? 'Saving…' : 'Save changes'),
             ),
           ],

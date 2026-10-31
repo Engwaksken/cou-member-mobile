@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../core/format.dart';
 import '../core/session.dart';
 import '../widgets/remote_view.dart';
+import '../widgets/ui.dart';
 import 'home_shell.dart';
 
 /// Church news: announcements, upcoming programs, and Health/Education department tips.
@@ -55,8 +56,8 @@ class _AnnouncementsTab extends StatelessWidget {
                 title: asText(a['title']),
                 meta: formatDate(a['published_at']),
                 body: asText(a['message']),
-                badge: asText(a['priority']) == 'Normal' ? null : asText(a['priority']),
-                badgeColor: asText(a['priority']) == 'Urgent' ? Colors.red.shade100 : Colors.amber.shade100,
+                leading: AnnouncementIcon(asText(a['priority'])),
+                badge: Pill.priority(asText(a['priority'])),
               ),
           ],
         );
@@ -88,7 +89,8 @@ class _ProgramsTab extends StatelessWidget {
                   asText(p['venue']),
                 ].where((s) => s.isNotEmpty).join(' · '),
                 body: [asText(p['description']), if (asText(p['meeting_link']).isNotEmpty) 'Online: ${p['meeting_link']}'].where((s) => s.isNotEmpty).join('\n\n'),
-                badge: asText(p['program_type']).isEmpty ? null : asText(p['program_type']),
+                leading: DateBadge(p['program_date']),
+                badge: asText(p['program_type']).isEmpty ? null : Pill(asText(p['program_type'])),
               ),
           ],
         );
@@ -119,6 +121,7 @@ class _TipsTab extends StatelessWidget {
                 title: asText(t['title']),
                 meta: '$department · ${asText(t['author'])} · ${formatDate(t['published_at'])}',
                 body: asText(t['content']),
+                leading: IconBadge(dept == 'health' ? Icons.health_and_safety_outlined : Icons.school_outlined),
               ),
           ],
         );
@@ -128,13 +131,13 @@ class _TipsTab extends StatelessWidget {
 }
 
 class _ArticleCard extends StatelessWidget {
-  const _ArticleCard({required this.title, required this.meta, required this.body, this.badge, this.badgeColor});
+  const _ArticleCard({required this.title, required this.meta, required this.body, required this.leading, this.badge});
 
   final String title;
   final String meta;
   final String body;
-  final String? badge;
-  final Color? badgeColor;
+  final Widget leading;
+  final Widget? badge;
 
   @override
   Widget build(BuildContext context) {
@@ -148,18 +151,27 @@ class _ArticleCard extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(child: Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: scheme.primary))),
-                if (badge != null)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(color: badgeColor ?? scheme.secondaryContainer, borderRadius: BorderRadius.circular(12)),
-                    child: Text(badge!, style: const TextStyle(fontSize: 12)),
+                leading,
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 16.5, fontWeight: FontWeight.w700)),
+                      const SizedBox(height: 4),
+                      Text(meta, style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 13.5)),
+                      if (badge != null) ...[const SizedBox(height: 8), badge!],
+                    ],
                   ),
+                ),
               ],
             ),
-            const SizedBox(height: 4),
-            Text(meta, style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 12)),
-            if (body.isNotEmpty) ...[const SizedBox(height: 10), Text(body, style: const TextStyle(height: 1.45))],
+            if (body.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              const Divider(),
+              const SizedBox(height: 12),
+              Text(body, style: const TextStyle(height: 1.5, fontSize: 15)),
+            ],
           ],
         ),
       ),

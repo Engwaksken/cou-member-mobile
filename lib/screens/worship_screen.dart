@@ -3,7 +3,9 @@ import 'package:provider/provider.dart';
 
 import '../core/format.dart';
 import '../core/session.dart';
+import '../core/theme.dart';
 import '../widgets/remote_view.dart';
+import '../widgets/ui.dart';
 import 'home_shell.dart';
 
 /// Order of Service and Church of Uganda hymns.
@@ -69,24 +71,49 @@ class _OrderOfServiceViewState extends State<OrderOfServiceView> {
                   _viewKey.currentState?.reload();
                 },
               ),
-            const SizedBox(height: 12),
-            Text(asText(order['title']), style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 4),
-            Text(
-              [formatDate(order['service_date'], 'EEEE, d MMM y'), formatTime(order['service_time']), asText(order['service_type'])].where((s) => s.isNotEmpty).join(' · '),
-              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+            if (orders.length > 1) const SizedBox(height: 12),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(18),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const IconBadge(Icons.church_outlined),
+                        const SizedBox(width: 14),
+                        Expanded(child: Text(asText(order['title']), style: Theme.of(context).textTheme.titleLarge)),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      [formatDate(order['service_date'], 'EEEE, d MMM y'), formatTime(order['service_time']), asText(order['service_type'])].where((s) => s.isNotEmpty).join(' · '),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.w500),
+                    ),
+                    if (asText(order['notes']).isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(color: AppColors.goldSoft, borderRadius: BorderRadius.circular(12)),
+                        child: Text(asText(order['notes']), style: const TextStyle(color: AppColors.goldText)),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
             ),
-            if (asText(order['notes']).isNotEmpty) ...[
-              const SizedBox(height: 12),
-              Card(child: Padding(padding: const EdgeInsets.all(12), child: Text(asText(order['notes'])))),
-            ],
             const SizedBox(height: 8),
-            if (items.isEmpty) const Padding(padding: EdgeInsets.all(8), child: Text('The items for this service have not been added yet.')),
+            if (items.isEmpty) const EmptyNote(icon: Icons.hourglass_empty, text: 'The items for this service have not been added yet.'),
             for (final (i, item) in items.indexed)
               Card(
                 child: ListTile(
-                  leading: CircleAvatar(child: Text('${i + 1}')),
-                  title: Text(asText(item['item_title']), style: const TextStyle(fontWeight: FontWeight.w600)),
+                  leading: CircleAvatar(
+                    backgroundColor: AppColors.purple,
+                    foregroundColor: Colors.white,
+                    child: Text('${i + 1}', style: const TextStyle(fontWeight: FontWeight.w700)),
+                  ),
+                  title: Text(asText(item['item_title'])),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -94,7 +121,7 @@ class _OrderOfServiceViewState extends State<OrderOfServiceView> {
                       if (asText(item['details']).isNotEmpty) Text(asText(item['details'])),
                       if (item['hymn_id'] != null)
                         TextButton.icon(
-                          style: TextButton.styleFrom(padding: EdgeInsets.zero, visualDensity: VisualDensity.compact),
+                          style: TextButton.styleFrom(padding: EdgeInsets.zero, alignment: Alignment.centerLeft),
                           icon: const Icon(Icons.music_note, size: 18),
                           label: Text('${asText(item['hymn_number']).isNotEmpty ? '#${item['hymn_number']} ' : ''}${asText(item['hymn_title'])}'),
                           onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => HymnScreen(hymnId: item['hymn_id'] as int))),
@@ -136,15 +163,21 @@ class _HymnsViewState extends State<HymnsView> {
           padding: const EdgeInsets.all(16),
           children: [
             TextField(
-              decoration: const InputDecoration(prefixIcon: Icon(Icons.search), hintText: 'Search by number, title or author', isDense: true),
+              decoration: const InputDecoration(prefixIcon: Icon(Icons.search), hintText: 'Search by number, title or author'),
               onChanged: (v) => setState(() => _query = v.trim()),
             ),
             const SizedBox(height: 8),
-            if (items.isEmpty) const Padding(padding: EdgeInsets.all(16), child: Text('No hymns match your search.')),
+            if (items.isEmpty) const EmptyNote(icon: Icons.search_off, text: 'No hymns match your search.'),
             for (final h in items)
               Card(
                 child: ListTile(
-                  leading: CircleAvatar(child: Text(asText(h['hymn_number'], '♪'), style: const TextStyle(fontSize: 13))),
+                  leading: Container(
+                    width: 48,
+                    height: 48,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: .6), borderRadius: BorderRadius.circular(14)),
+                    child: Text(asText(h['hymn_number'], '♪'), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: AppColors.purple)),
+                  ),
                   title: Text(asText(h['title'])),
                   subtitle: Text([asText(h['hymn_book']), asText(h['language']), asText(h['theme'])].where((s) => s.isNotEmpty).join(' · ')),
                   trailing: const Icon(Icons.chevron_right),
@@ -181,33 +214,63 @@ class HymnScreen extends StatelessWidget {
             'Theme / Season': h['theme'],
             'Scripture': h['scripture_reference'],
           }..removeWhere((_, v) => asText(v).isEmpty);
+          final muted = Theme.of(context).colorScheme.onSurfaceVariant;
           return ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
             children: [
-              Text(
-                '${asText(h['hymn_number']).isNotEmpty ? '#${h['hymn_number']}  ' : ''}${asText(h['title'])}',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+              BrandPanel(
+                child: Row(
+                  children: [
+                    if (asText(h['hymn_number']).isNotEmpty) ...[
+                      Container(
+                        constraints: const BoxConstraints(minWidth: 56),
+                        height: 56,
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(color: Colors.white.withValues(alpha: .16), borderRadius: BorderRadius.circular(16)),
+                        child: Text('#${h['hymn_number']}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: AppColors.gold)),
+                      ),
+                      const SizedBox(width: 14),
+                    ],
+                    Expanded(child: Text(asText(h['title']), style: const TextStyle(fontSize: 21, fontWeight: FontWeight.w700, height: 1.25))),
+                  ],
+                ),
               ),
-              const SizedBox(height: 12),
-              for (final e in details.entries)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 3),
-                  child: Text.rich(TextSpan(children: [
-                    TextSpan(text: '${e.key}: ', style: const TextStyle(fontWeight: FontWeight.w600)),
-                    TextSpan(text: asText(e.value)),
-                  ])),
+              if (details.isNotEmpty)
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        for (final e in details.entries)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 5),
+                            child: Text.rich(TextSpan(children: [
+                              TextSpan(text: '${e.key}: ', style: TextStyle(color: muted)),
+                              TextSpan(text: asText(e.value), style: const TextStyle(fontWeight: FontWeight.w600)),
+                            ])),
+                          ),
+                      ],
+                    ),
+                  ),
                 ),
               if (asText(h['study_notes']).isNotEmpty) ...[
                 const SectionTitle('Study notes'),
-                Text(asText(h['study_notes']), style: const TextStyle(height: 1.5)),
+                Card(child: Padding(padding: const EdgeInsets.all(16), child: Text(asText(h['study_notes']), style: const TextStyle(height: 1.55)))),
               ],
               if (asText(h['lyrics']).isNotEmpty) ...[
                 const SectionTitle('Lyrics'),
-                SelectableText(asText(h['lyrics']), style: const TextStyle(fontSize: 17, height: 1.7)),
-                const SizedBox(height: 12),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: SelectableText(asText(h['lyrics']), style: const TextStyle(fontFamily: 'serif', fontSize: 18, height: 1.7)),
+                  ),
+                ),
+                const SizedBox(height: 8),
                 Text(
                   [asText(h['copyright_status']), asText(h['copyright_notice'])].where((s) => s.isNotEmpty).join(' · '),
-                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
+                  style: TextStyle(color: muted, fontSize: 13),
                 ),
               ],
             ],

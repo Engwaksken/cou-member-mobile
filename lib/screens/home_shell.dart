@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../core/config.dart';
 import '../core/format.dart';
 import '../core/session.dart';
+import '../core/theme.dart';
 import 'church_screen.dart';
 import 'dashboard_screen.dart';
 import 'edit_profile_screen.dart';
@@ -84,7 +85,10 @@ class _HomeShellState extends State<HomeShell> {
         index: _index,
         children: [for (var i = 0; i < _destinations.length; i++) _visited.contains(i) ? _page(i) : const SizedBox.shrink()],
       ),
-      bottomNavigationBar: NavigationBar(selectedIndex: _index, onDestinationSelected: _select, destinations: _destinations),
+      bottomNavigationBar: DecoratedBox(
+        decoration: const BoxDecoration(border: Border(top: BorderSide(color: AppColors.outline))),
+        child: NavigationBar(selectedIndex: _index, onDestinationSelected: _select, destinations: _destinations),
+      ),
     );
   }
 }
@@ -113,41 +117,54 @@ class _Menu extends StatelessWidget {
     final photo = asText(m['photo_url']);
     final scheme = Theme.of(context).colorScheme;
 
-    Widget item(IconData icon, String label, int section, [int? tab]) => ListTile(
+    Widget tile(Widget child) => Padding(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 1), child: child);
+    Widget item(IconData icon, String label, int section, [int? tab]) => tile(ListTile(
           leading: Icon(icon),
           title: Text(label),
           selected: tab == null && selected == section,
           dense: tab != null,
-          contentPadding: EdgeInsets.only(left: tab == null ? 16 : 28, right: 16),
+          contentPadding: EdgeInsets.only(left: tab == null ? 16 : 24, right: 16),
           onTap: () => open(section, tab),
-        );
+        ));
     Widget heading(String text) => Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-          child: Text(text.toUpperCase(), style: TextStyle(color: scheme.primary, fontWeight: FontWeight.w700, fontSize: 12, letterSpacing: .8)),
+          padding: const EdgeInsets.fromLTRB(28, 18, 16, 6),
+          child: Text(text.toUpperCase(), style: TextStyle(color: scheme.onSurfaceVariant, fontWeight: FontWeight.w700, fontSize: 12.5, letterSpacing: 1)),
         );
 
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          DrawerHeader(
-            decoration: BoxDecoration(color: scheme.primary),
+          Container(
+            decoration: const BoxDecoration(gradient: AppColors.brandGradient),
+            padding: EdgeInsets.fromLTRB(20, MediaQuery.paddingOf(context).top + 24, 20, 22),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                CircleAvatar(
-                  radius: 28,
-                  backgroundColor: scheme.onPrimary,
-                  foregroundImage: photo.isEmpty ? null : NetworkImage(photo),
-                  child: Text(name.substring(0, 1).toUpperCase(), style: TextStyle(fontSize: 24, color: scheme.primary)),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(3),
+                      decoration: const BoxDecoration(color: AppColors.gold, shape: BoxShape.circle),
+                      child: CircleAvatar(
+                        radius: 30,
+                        backgroundColor: Colors.white,
+                        foregroundImage: photo.isEmpty ? null : NetworkImage(photo),
+                        child: Text(name.substring(0, 1).toUpperCase(), style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w700, color: AppColors.purple)),
+                      ),
+                    ),
+                    const Spacer(),
+                    Image.asset('assets/icons/logo.png', width: 44, height: 44, cacheWidth: 132, opacity: const AlwaysStoppedAnimation(.9)),
+                  ],
                 ),
-                const SizedBox(height: 10),
-                Text(name, style: TextStyle(color: scheme.onPrimary, fontWeight: FontWeight.bold, fontSize: 16)),
-                Text('${AppConfig.churchName} · ${asText(m['member_no'])}', style: TextStyle(color: scheme.onPrimary.withValues(alpha: .8), fontSize: 13)),
+                const SizedBox(height: 14),
+                Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 18)),
+                const SizedBox(height: 2),
+                Text('${AppConfig.churchName} · ${asText(m['member_no'])}', style: TextStyle(color: Colors.white.withValues(alpha: .85), fontSize: 13.5)),
               ],
             ),
           ),
+          const SizedBox(height: 8),
           item(Icons.home_outlined, 'Home', 0),
           heading('Giving'),
           for (final (i, t) in GivingScreen.tabs.indexed) item(t.icon, t.label, 1, i),
@@ -159,23 +176,23 @@ class _Menu extends StatelessWidget {
           item(Icons.event_outlined, 'Programs', 3, 1),
           item(Icons.health_and_safety_outlined, 'Health Tips', 3, 2),
           item(Icons.school_outlined, 'Education Tips', 3, 3),
-          const Divider(),
+          const Padding(padding: EdgeInsets.symmetric(horizontal: 24, vertical: 10), child: Divider()),
           item(Icons.person_outline, 'My Profile', 4),
-          ListTile(
+          tile(ListTile(
             leading: const Icon(Icons.edit_outlined),
             title: const Text('Edit profile'),
             onTap: () => run((context) => Navigator.push(context, MaterialPageRoute(builder: (_) => const EditProfileScreen()))),
-          ),
-          ListTile(
+          )),
+          tile(ListTile(
             leading: const Icon(Icons.lock_reset),
             title: const Text('Change password'),
             onTap: () => run((context) => Navigator.push(context, MaterialPageRoute(builder: (_) => const ChangePasswordScreen()))),
-          ),
-          ListTile(
+          )),
+          tile(ListTile(
             leading: Icon(Icons.logout, color: scheme.error),
             title: Text('Sign out', style: TextStyle(color: scheme.error)),
             onTap: () => run((context) => confirmSignOut(context, context.read<Session>())),
-          ),
+          )),
           const SizedBox(height: 16),
         ],
       ),
