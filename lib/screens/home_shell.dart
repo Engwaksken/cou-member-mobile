@@ -9,6 +9,8 @@ import 'church_screen.dart';
 import 'dashboard_screen.dart';
 import 'edit_profile_screen.dart';
 import 'giving_screen.dart';
+import 'notification_settings_screen.dart';
+import 'notifications_screen.dart';
 import 'profile_screen.dart';
 import 'worship_screen.dart';
 
@@ -171,6 +173,16 @@ class _Menu extends StatelessWidget {
           item(Icons.health_and_safety_outlined, 'Health Tips', 3, 2),
           item(Icons.school_outlined, 'Education Tips', 3, 3),
           const Padding(padding: EdgeInsets.symmetric(horizontal: 24, vertical: 10), child: Divider()),
+          tile(ListTile(
+            leading: const Icon(Icons.notifications_outlined),
+            title: const Text('Notifications'),
+            onTap: () => run((context) => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsScreen()))),
+          )),
+          tile(ListTile(
+            leading: const Icon(Icons.tune),
+            title: const Text('Notification settings'),
+            onTap: () => run((context) => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationSettingsScreen()))),
+          )),
           item(Icons.person_outline, 'My Profile', 4),
           tile(ListTile(
             leading: const Icon(Icons.edit_outlined),

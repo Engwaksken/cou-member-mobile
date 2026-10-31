@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:cou_member_app/core/api_client.dart';
+import 'package:cou_member_app/core/push.dart';
 import 'package:cou_member_app/core/session.dart';
 import 'package:cou_member_app/main.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +29,12 @@ const member = {'id': 1, 'member_no': 'RCOU-2026-0001', 'pledge_no': 'P-001', 'f
 
 /// Bodies sent to update_profile, for assertions.
 final updatedProfiles = <Map<String, dynamic>>[];
+
+/// Bodies sent to update_notification_settings, for assertions.
+final savedNotificationSettings = <Map<String, dynamic>>[];
+
+/// Whether the fake member has read their notifications.
+var notificationsRead = false;
 
 /// Mary's password on the fake server; reset_password changes it.
 var memberPassword = 'Member@123';
@@ -72,6 +79,33 @@ http.Response fakeApi(http.Request request, {bool expireToken = false}) {
         'programs': <Object>[],
       }),
     'logout' => json(200, {'success': true}),
+    'notification_settings' => json(200, {
+        'success': true,
+        'categories': [
+          {'key': 'announcements', 'label': 'Announcements', 'description': 'New church announcements', 'push': true, 'email': true, 'sms': false},
+          {'key': 'payments', 'label': 'Payments received', 'description': 'Tithe and pledge payments', 'push': true, 'email': true, 'sms': false},
+        ],
+        'channels': {
+          'push': {'available': true, 'note': null},
+          'email': {'available': false, 'note': 'Add an email address to your profile to get emails.'},
+          'sms': {'available': true, 'note': '0772 123456'},
+        },
+      }),
+    'update_notification_settings' => () {
+        savedNotificationSettings.add(jsonDecode(request.body) as Map<String, dynamic>);
+        return json(200, {'success': true, 'message': 'Your notification settings were saved.'});
+      }(),
+    'notifications' => json(200, {
+        'success': true,
+        'unread': notificationsRead ? 0 : 1,
+        'items': [
+          {'id': 1, 'category': 'payments', 'title': 'Tithe received', 'body': 'We received your tithe of UGX 50,000.', 'created_at': '2026-10-31 09:00:00', 'read_at': notificationsRead ? '2026-10-31 10:00:00' : null},
+        ],
+      }),
+    'mark_notifications_read' => () {
+        notificationsRead = true;
+        return json(200, {'success': true});
+      }(),
     'pledges' => json(200, {'success': true, 'items': <Object>[]}),
     'giving' => request.url.queryParameters['type'] == 'good_samaritan'
         ? json(200, {
@@ -305,5 +339,47 @@ void main() {
     expect(session.status, SessionStatus.signedIn);
     expect(find.text('Welcome back, Mary'), findsOneWidget);
     expect(find.text('Reset password'), findsNothing);
+  });
+
+  testWidgets('chooses notification channels from the profile', (tester) async {
+    savedNotificationSettings.clear();
+    final session = makeSession(savedToken: validToken);
+    await session.restore();
+    await tester.pumpWidget(MemberApp(session: session));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Profile'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const Key('openNotificationSettings')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('openNotificationSettings')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Notification settings'), findsOneWidget);
+    expect(find.text('Add an email address to your profile to get emails.'), findsOneWidget);
+    // Email is on but cannot reach the member, so it can still be turned off; SMS is available.
+    await tester.tap(find.byKey(const Key('announcements-sms')));
+    await tester.pumpAndSettle();
+    expect(savedNotificationSettings.single['settings'], {
+      'announcements': {'push': true, 'email': true, 'sms': true},
+    });
+    expect(tester.widget<FilterChip>(find.byKey(const Key('announcements-sms'))).selected, isTrue);
+  });
+
+  testWidgets('the bell shows unread notifications and opening them marks them read', (tester) async {
+    notificationsRead = false;
+    final session = makeSession(savedToken: validToken);
+    session.onSignedIn = () => refreshUnread(session.api);
+    await session.restore();
+    await tester.pumpWidget(MemberApp(session: session));
+    await tester.pumpAndSettle();
+    expect(find.descendant(of: find.byKey(const Key('notificationBell')), matching: find.text('1')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('notificationBell')));
+    await tester.pumpAndSettle();
+    expect(find.text('Tithe received'), findsOneWidget);
+    expect(notificationsRead, isTrue);
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    expect(find.descendant(of: find.byKey(const Key('notificationBell')), matching: find.text('1')), findsNothing);
   });
 }

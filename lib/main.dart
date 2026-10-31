@@ -3,16 +3,27 @@ import 'package:provider/provider.dart';
 
 import 'core/api_client.dart';
 import 'core/config.dart';
+import 'core/push.dart';
 import 'core/session.dart';
 import 'core/theme.dart';
 import 'screens/home_shell.dart';
 import 'screens/login_screen.dart';
+import 'screens/notifications_screen.dart';
+
+final _navigator = GlobalKey<NavigatorState>();
+final _messenger = GlobalKey<ScaffoldMessengerState>();
 
 void main() {
   // Secure storage uses a platform channel, which needs the binding before runApp.
   WidgetsFlutterBinding.ensureInitialized();
   final api = ApiClient(baseUrl: AppConfig.apiBaseUrl);
-  final session = Session(api: api, store: SecureTokenStore())..restore();
+  final session = Session(api: api, store: SecureTokenStore())..onSignedIn = () => Push.start(api);
+  Push.onOpened = () => _navigator.currentState?.push(MaterialPageRoute<void>(builder: (_) => const NotificationsScreen()));
+  Push.onForeground = (title, body) => _messenger.currentState?.showSnackBar(SnackBar(
+        content: Text(body.isEmpty ? title : '$title\n$body'),
+        action: SnackBarAction(label: 'View', onPressed: () => Push.onOpened?.call()),
+      ));
+  session.restore();
   runApp(MemberApp(session: session));
 }
 
@@ -28,6 +39,8 @@ class MemberApp extends StatelessWidget {
       child: MaterialApp(
         title: AppConfig.churchName,
         debugShowCheckedModeBanner: false,
+        navigatorKey: _navigator,
+        scaffoldMessengerKey: _messenger,
         theme: buildAppTheme(),
         home: const _Root(),
       ),

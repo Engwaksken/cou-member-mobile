@@ -42,6 +42,9 @@ class Session extends ChangeNotifier {
   /// Shown on the sign-in screen after the server ends the session.
   String? notice;
 
+  /// Called each time a member is signed in or a saved sign-in is restored (used to register for push).
+  void Function()? onSignedIn;
+
   /// Restores a saved sign-in, checking with the server that it is still valid.
   Future<void> restore() async {
     String? saved;
@@ -61,6 +64,7 @@ class Session extends ChangeNotifier {
       final data = await api.get('me');
       member = Map<String, dynamic>.from(data['member'] as Map);
       _set(SessionStatus.signedIn);
+      onSignedIn?.call();
     } on ApiException catch (e) {
       if (e.isUnauthorized) {
         await _forget();
@@ -92,6 +96,7 @@ class Session extends ChangeNotifier {
     member = Map<String, dynamic>.from(data['member'] as Map);
     notice = null;
     _set(SessionStatus.signedIn);
+    onSignedIn?.call();
   }
 
   /// Replaces the signed-in member's details after the member edits their profile.

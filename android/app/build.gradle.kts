@@ -4,6 +4,11 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+// Push notifications: add the Firebase config file (android/app/google-services.json) to switch them on.
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+}
+
 android {
     namespace = "org.rongorocou.cou_member_app"
     compileSdk = flutter.compileSdkVersion

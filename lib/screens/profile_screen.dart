@@ -11,6 +11,7 @@ import '../widgets/remote_view.dart';
 import '../widgets/ui.dart';
 import 'edit_profile_screen.dart';
 import 'home_shell.dart';
+import 'notification_settings_screen.dart';
 import 'login_screen.dart' show FormAlert;
 
 /// Asks before signing out of the app on this device.
@@ -210,6 +211,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         title: const Text('Change password'),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ChangePasswordScreen())),
+                      ),
+                      const Divider(indent: 16, endIndent: 16),
+                      ListTile(
+                        key: const Key('openNotificationSettings'),
+                        leading: const IconBadge(Icons.notifications_outlined, size: 40),
+                        title: const Text('Notification settings'),
+                        subtitle: const Text('Push, email and SMS'),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationSettingsScreen())),
                       ),
                     ],
                   ),
